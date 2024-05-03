@@ -20,6 +20,7 @@ jobs:
           bundler-cache: true
           ruby-version: "3.2.2"
       - name: Read gem version
+        id: gem_version
         run: |
           version=$(ruby -r rubygems -e "spec = Gem::Specification::load(Dir.glob('*.gemspec').first); puts spec.version")
           echo "gem_version=$version" >> $GITHUB_ENV
@@ -34,8 +35,11 @@ jobs:
             const release = await github.rest.repos.createRelease({
               owner,
               repo,
-              tag_name: ${{ env.gem_version }},
+              tag_name: version,
               draft: true,
               generate_release_notes: true
             });
             return release.data.id;
+      - name: Build gem
+        run: bundle exec rake build
+        shell: bash
